@@ -1,7 +1,6 @@
 package com.plurasight;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
 
 public class DealershipFileManager {
     //  create a starter data file
@@ -29,5 +28,24 @@ public class DealershipFileManager {
             throw new RuntimeException(e);
         }
         return dealership;
-    }}
+    }
+    // create backup dealership method
+    // overwrite with the current dealership information and inventory list
+public void saveDealership(Dealership dealership){
+        // write information to backup file
+    try{
+        BufferedWriter bw =new BufferedWriter(new FileWriter("backupInventory.csv"));
+
+     // first line is dealership details
+        bw.write(dealership.getName()+ "|" + dealership.getName() +"|" + dealership.getPhone() + "\n");
+         for (Vehicle vehicle : dealership.getAllVehicle()) {
+        bw.write(vehicle.getVin() + "|" + vehicle.getYear() + "|" + vehicle.getMake() + "|" + vehicle.getModel() + "|" + vehicle.getVehicleType() + "|" + vehicle.getColor() + "|" + vehicle.getOdometer() + "|" + vehicle.getPrice() + "\n");
+    }
+} catch (IOException e) {
+        throw new RuntimeException(e);
+}
+    }
+}
+
+
 
