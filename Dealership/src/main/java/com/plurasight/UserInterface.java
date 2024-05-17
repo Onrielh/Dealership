@@ -1,6 +1,7 @@
 package com.plurasight;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
@@ -15,58 +16,65 @@ public class UserInterface {
     boolean running = true;
     String line;
 
-    public void display(){
+    public void display() {
         init();
-        while(running){
-            System.out.println(" ~ Menu ~");
+        while (running) {
+            System.out.println("\t ~ Menu ~");
+            System.out.println("(1) Search by price,(2)Search by make and model");
+            System.out.println("(3) Search by year,(4)Search by color");
+            System.out.println("(5) Search by mileage,(6) Search by vehicle type");
+            System.out.println("(7) List all vehicles,(8) Add a vehicle");
+            System.out.println("(9) Remove a vehicle,(0) Exit");
             System.out.println("Please Make a Selection");
-            System.out.println("1. Search by price");
-            System.out.println("2. Search by make and model");
-            System.out.println("3. Search by year");
-            System.out.println("4. Search by color");
-            System.out.println("5. Search by mileage");
-            System.out.println("6. Search by vehicle type");
-            System.out.println("7. List all vehicles");
-            System.out.println("8. Add a vehicle");
-            System.out.println("9. Remove a vehicle");
-            System.out.println("0. Exit");
-            int choice = scanner.nextInt();
-        switch (choice){
-            case 1:
-                processGetByPriceRequest();
-                break;
-            case 2:
-                processGetByMakeModelRequest();
-                break;
-            case 3:
-                processGetByYearRequest();
-                break;
-            case 4:
-                processGetByColorRequest();
-                break;
-            case 5:
-                processGetByMileageRequest();
-                break;
-            case 6:
-                processGetByVehicleTypeRequest();
-                break;
-            case 7:
-                processGetAllVehiclesRequest();
-                break;
-            case 8:
-                processAddVehicleRequest();
-                break;
-            case 9:
-                processRemoveVehicleRequest();
-                break;
-            case 0:
-                System.exit(0);
-                running=false;
-                break;
-            default:
-                System.out.println("Invalid Input.");}
+            try {
+                int choice = scanner.nextInt();
+                scanner.nextLine();
+                switch (choice) {
+                    case 1:
+                        processGetByPriceRequest();
+                        break;
+                    case 2:
+                        processGetByMakeModelRequest();
+                        break;
+                    case 3:
+                        processGetByYearRequest();
+                        break;
+                    case 4:
+                        processGetByColorRequest();
+                        break;
+                    case 5:
+                        processGetByMileageRequest();
+                        break;
+                    case 6:
+                        processGetByVehicleTypeRequest();
+                        break;
+                    case 7:
+                        processGetAllVehiclesRequest();
+                        break;
+                    case 8:
+                        processAddVehicleRequest();
+                        break;
+                    case 9:
+                        processRemoveVehicleRequest();
+                        break;
+                    case 0:
+                        System.exit(0);
+                        running = false;
+                        break;
+                    default:
+                        System.out.println("Invalid Input.");
+                }
+            } catch (InputMismatchException e) {
+                {
+                    System.out.println("Please enter a valid number");
+                    scanner.nextLine();
+
+                }
+            }
+        }
     }
-    }
+
+
     private void init() {
         // Initalize the variable.
         dealershipFileManager = new DealershipFileManager();
@@ -76,20 +84,20 @@ public class UserInterface {
 
 
     private void processGetByPriceRequest() {
-        double minPrice = 0;
-        double maxPrice = 0;
+        double min = 0;
+        double max = 0;
         boolean validInput = false;
 
         while (!validInput) {
             try {
                 // Ask user for the minimum price.
                 System.out.print("Enter minimum price: ");
-                minPrice = scanner.nextDouble();
+                min = scanner.nextDouble();
                 scanner.nextLine();
 
                 // Ask user for the maximum price.
                 System.out.print("Enter maximum price: ");
-                maxPrice = scanner.nextDouble();
+                max= scanner.nextDouble();
                 scanner.nextLine();
 
                 // Set validInput to true to stop the loop.
@@ -136,9 +144,6 @@ public class UserInterface {
         // Create a new vehicle object.
         vehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
 
-        // Add the vehicle to the dealership.
-        dealership.addVehicle(vehicle);
-
         // Save the dealership after adding the vehicle
         dealershipFileManager.saveDealership(dealership);
 
@@ -159,7 +164,7 @@ public class UserInterface {
         System.out.println("Please Enter the Vehicle Type ~ \n");
         String type = scanner.nextLine();
 
-        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))){
+        try (BufferedReader br = new BufferedReader(new FileReader("Inventory.csv"))){
             br.readLine();
             while ((line = br.readLine()) != null) {
                 // first have to split the array
@@ -203,14 +208,14 @@ public class UserInterface {
         System.out.println("Please Enter the Vehicle Color~ \n");
         String color = scanner.nextLine();
 
-        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))){
+        try (BufferedReader br = new BufferedReader(new FileReader("Inventory.csv"))){
             br.readLine();
             while ((line = br.readLine()) != null) {
                 // first have to split the array
                 String[] data = line.split("\\|");
                 //split the specific data piece you want to pull,
                 if (color.equalsIgnoreCase(vehicle.getColor())) {
-                    System.out.println(vehicle);
+                    System.out.println(vehicles);
                 }
             }} catch (IOException e) {
             throw new RuntimeException(e);
@@ -248,17 +253,11 @@ public class UserInterface {
         String make = scanner.nextLine();
         System.out.println("Model: ");
         String model = scanner.nextLine();
-        try (BufferedReader br = new BufferedReader(new FileReader("transactions.csv"))){
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                // first have to split the array
-                //String[] data = line.split("\\|");
-                //split the specific data piece you want to pull,
-                if (make.equalsIgnoreCase(vehicle.getMake()) && (model.equalsIgnoreCase(vehicle.getModel()))) {
-                    System.out.println(vehicle);
-                }
-            }} catch (IOException e) {
-            throw new RuntimeException(e);
+        ArrayList<Vehicle> makeandModel = dealership.getVehicleByMakeModel(make, model);
+        if (makeandModel.isEmpty()) {
+            System.out.println("No vehicles were found");
+        } else {
+            System.out.println("Vehicles matching make '" + make + "' and model '" + model + "':");
         }
     }
 }
