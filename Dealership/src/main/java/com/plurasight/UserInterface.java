@@ -10,11 +10,8 @@ public class UserInterface {
     Scanner scanner = new Scanner(System.in);
     private Dealership dealership;
     public DealershipFileManager dealershipFileManager;
-    public List<Vehicle> vehicles;
-    public String vehicleType;
-    public Vehicle vehicle;
     boolean running = true;
-    String line;
+
 
     public void display() {
         init();
@@ -73,65 +70,54 @@ public class UserInterface {
             }
         }
     }
+    // helper display method
+    // will be called by each method to help with formatting
+    //similar to toString method
+    private void displayVehicles (ArrayList<Vehicle> vehicles) {
+        for (Vehicle vehicle: vehicles){
+            System.out.println(
+            "Vin=" + vehicle.getVin() +
+                    ", Year=" + vehicle.getYear() +
+                    ", Model=" + vehicle.getModel() +
+                    ", Make=" + vehicle.getMake() +
+                    ", vehicleType=" + vehicle.getVehicleType() +
+                    ", Color=" + vehicle.getColor() +
+                    ", Odometer=" + vehicle.getOdometer()+
+                    ", Price=" + vehicle.getPrice());
+        }
+        }
 
+
+    private void processGetByMakeModelRequest() {
+        System.out.print("Please Enter the Make:");
+        String make = scanner.nextLine();
+        System.out.print("Please Enter Model:");
+        String model = scanner.nextLine();
+        ArrayList<Vehicle> makeAndModel = dealership.getVehicleByMakeModel(make, model);
+        if (makeAndModel.isEmpty()) {
+            System.out.println(" No Vehicles Found");
+        } else {
+            System.out.println(makeAndModel);
+        }
+    }
 
     private void init() {
         // Initalize the variable.
         dealershipFileManager = new DealershipFileManager();
         this.dealership = dealershipFileManager.getDealership();
     }
-
-
-
-    private void processGetByPriceRequest() {
-        double min = 0;
-        double max = 0;
-        boolean validInput = false;
-
-        while (!validInput) {
-            try {
-                // Ask user for the minimum price.
-                System.out.print("Enter minimum price: ");
-                min = scanner.nextDouble();
-                scanner.nextLine();
-
-                // Ask user for the maximum price.
-                System.out.print("Enter maximum price: ");
-                max= scanner.nextDouble();
-                scanner.nextLine();
-
-                // Set validInput to true to stop the loop.
-                validInput = true;
-                // Print error if invalid input.
-            } catch (InputMismatchException e) {
-                System.out.println("\nInvalid input. Please enter a valid price.");
-                // Clear the invalid input.
-                scanner.nextLine();
-            }
-        }
-    }
-
-    private void processRemoveVehicleRequest() {
-        System.out.println("Please enter the VIN number of the vehicle you wish to remove");
-        int input = scanner.nextInt();
-        if( input== vehicle.getVin()){
-            vehicles.remove(vehicles);
-        }
-
-        }
-
-
-
     private void processAddVehicleRequest() {
         System.out.println("Please Enter the Details of the Vehicle you wish to add");
-        System.out.println("VIN:");
+        System.out.print("VIN:");
         int vin = scanner.nextInt();
-        System.out.println("Year: ");
+        System.out.print("Year: ");
         int year = scanner.nextInt();
         System.out.print("Make: ");
         String make = scanner.nextLine();
+        scanner.nextLine();
         System.out.print("Model: ");
         String model = scanner.nextLine();
+        scanner.nextLine();
         System.out.print("Vehicle type: ");
         String vehicleType = scanner.nextLine();
         System.out.print("Color: ");
@@ -142,122 +128,113 @@ public class UserInterface {
         double price = scanner.nextDouble();
 
         // Create a new vehicle object.
-        vehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
+       Vehicle addedVehicle = new Vehicle(vin, year, make, model, vehicleType, color, odometer, price);
+        dealership.addVehicle(addedVehicle);
 
         // Save the dealership after adding the vehicle
         dealershipFileManager.saveDealership(dealership);
 
         // Print success message.
-        System.out.println("\nVehicle added successfully!");
+        System.out.println(addedVehicle +"\n was added successfully!");
         // Print error if invalid input.
     }
 
-
-
-
     private void processGetAllVehiclesRequest() {
-        for(Vehicle vehicle:vehicles){
+        for (Vehicle vehicle : dealership.getAllVehicle()) {
             System.out.println(vehicle);
         }
     }
+
     private void processGetByVehicleTypeRequest() {
         System.out.println("Please Enter the Vehicle Type ~ \n");
         String type = scanner.nextLine();
-
-        try (BufferedReader br = new BufferedReader(new FileReader("Inventory.csv"))){
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                // first have to split the array
-                String[] data = line.split("\\|");
-                //split the specific data piece you want to pull,
-                if (type.equalsIgnoreCase(vehicle.getVehicleType())) {
-                    System.out.println(vehicle);
-                    }
-            }} catch (IOException e) {
-            throw new RuntimeException(e);
+        // create new array list to add search results
+        ArrayList<Vehicle> typeSearch = dealership.getVehicleByType(type);
+        if (typeSearch.isEmpty()) {
+            System.out.println(" No Vehicles Found");
+        } else {
+            System.out.println("Search results \n");
+            displayVehicles(typeSearch);
+        }
+    }
+    private void processGetByPriceRequest() {
+        System.out.print("Please Enter Minimum Price:");
+        int minPrice = scanner.nextInt();
+        System.out.println("Please Enter Maximum Price");
+        int maxPrice = scanner.nextInt();
+        ArrayList <Vehicle> priceSearch = dealership.getVehiclesByPrice(minPrice,maxPrice);
+        if (priceSearch.isEmpty()) {
+            System.out.println(" No Vehicles Found");
+        } else {
+            System.out.println("Search results \n");
+            displayVehicles(priceSearch);
         }
     }
 
-    private void processGetByMileageRequest() {
-        int minMileage = 0;
-        int maxMileage = 0;
-        boolean validInput = false;
+    private void processRemoveVehicleRequest() {
 
-        while (!validInput) {
-            try {
-                // Ask the user for the minimum mileage.
-                System.out.print("Enter minimum mileage: ");
-                minMileage = scanner.nextInt();
+        System.out.print("Enter VIN of the vehicle to remove: ");
+        int vin = scanner.nextInt();
+        scanner.nextLine();
+        // Find the vehicle in the array.
+        Vehicle vehicleToRemove = null;
+        for (Vehicle vehicle : dealership.getAllVehicle()) {
+            if (vehicle.getVin() == vin) {
+                vehicleToRemove = vehicle;
+                break;
+            }
+        }
+        // If no vehicle with a matching VIN found, print message.
+        if (vehicleToRemove == null) {
+            System.out.println("Vehicle not found ");
+        } else {
+            dealership.removeVehicle(vehicleToRemove);
+            dealershipFileManager.saveDealership(dealership);
+            System.out.println("\n ~Vehicle removed successfully!~");
+        }
+    }
 
-                // Ask the user for the maximum mileage.
-                System.out.print("Enter maximum mileage: ");
-                maxMileage = scanner.nextInt();
-
-                // Set validInput to true to stop the loop.
-                validInput = true;
-                // Print error if invalid input.
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid mileage.");
-                // Clear the invalid input.
-                scanner.nextLine();
+            private void processGetByMileageRequest () {
+                System.out.print("Please Enter Minimum Mileage:");
+                int minMileage = scanner.nextInt();
+                System.out.print("Please Enter Maximum Mileage:");
+                int maxMileage = scanner.nextInt();
+                // create new array list to add search results
+                ArrayList<Vehicle> mileageSearch = dealership.getVehicleByMileage(minMileage, maxMileage);
+                if (mileageSearch.isEmpty()) {
+                    System.out.println(" No Vehicles Found");
+                } else {
+                    System.out.println("Search Results \n");
+                    displayVehicles(mileageSearch);
+                }
             }
 
-    }}
-
-    private void processGetByColorRequest() {
-        System.out.println("Please Enter the Vehicle Color~ \n");
-        String color = scanner.nextLine();
-
-        try (BufferedReader br = new BufferedReader(new FileReader("Inventory.csv"))){
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                // first have to split the array
-                String[] data = line.split("\\|");
-                //split the specific data piece you want to pull,
-                if (color.equalsIgnoreCase(vehicle.getColor())) {
-                    System.out.println(vehicles);
+            private void processGetByColorRequest () {
+                System.out.print("Please Enter the Vehicle Color:");
+                String color = scanner.nextLine();
+                // create new array list to add search results
+                // call search by color method
+                ArrayList<Vehicle> colorSearch = dealership.getVehiclebyColor(color);
+                if (colorSearch.isEmpty()) {
+                    System.out.println(" No Vehicles Found");
+                } else {
+                    System.out.println("Search results \n");
+                    displayVehicles(colorSearch);
                 }
-            }} catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private void processGetByYearRequest() {
-            int minYear = 0;
-            int maxYear = 0;
-            boolean validInput = false;
-
-            while (!validInput) {
-                try {
-                    // Ask the user for the minimum year.
-                    System.out.print("Enter minimum year: ");
-                    minYear = scanner.nextInt();
-
-                    // Ask the user for the maximum year.
-                    System.out.print("Enter maximum year: ");
-                    maxYear = scanner.nextInt();
-
-                    // Set validInput to true to stop the loop.
-                    validInput = true;
-                    // Print error if invalid input.
-                } catch (InputMismatchException e) {
-                    System.out.println("Invalid input. Please enter a valid year.");
-                    // Clear the invalid input.
-                    scanner.nextLine();
+            }
+            private void processGetByYearRequest () {
+                System.out.print("Please Enter Minimum Year:");
+                int minYear = scanner.nextInt();
+                System.out.println("Please Enter Maximum Year");
+                int maxYear = scanner.nextInt();
+                // set array equal to method
+                ArrayList<Vehicle> yearRange = dealership.getVehicleByYear(minYear, maxYear);
+                if (yearRange.isEmpty()) {
+                    System.out.println(" No Vehicles Found");
+                } else {
+                    System.out.println("Search results \n");
+                    displayVehicles(yearRange);
                 }
-    }}
-
-    private void processGetByMakeModelRequest() {
-        System.out.println("Please Enter the Make and Model, separated by a comma ~ \n");
-        System.out.println("Make: ");
-        String make = scanner.nextLine();
-        System.out.println("Model: ");
-        String model = scanner.nextLine();
-        ArrayList<Vehicle> makeandModel = dealership.getVehicleByMakeModel(make, model);
-        if (makeandModel.isEmpty()) {
-            System.out.println("No vehicles were found");
-        } else {
-            System.out.println("Vehicles matching make '" + make + "' and model '" + model + "':");
+            }
         }
-    }
-}
+

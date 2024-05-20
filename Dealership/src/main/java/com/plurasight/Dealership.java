@@ -7,7 +7,7 @@ public class Dealership {
     private String name;
     private String address;
     private String phone;
-    private final ArrayList<Vehicle> inventory;
+    private ArrayList<Vehicle> inventory;
 
     // Constructor
 
@@ -64,53 +64,51 @@ public class Dealership {
             }
         } return makeAndModel;
     }
-        public ArrayList<Vehicle> getVehicleByYear (int minYear,int maxYear) {
-            ArrayList<Vehicle> yearRange = new ArrayList<>();
-            for (Vehicle vehicle : inventory) {
-                // sets the range to if the price is greater than the min and less than the max
-                if (vehicle.getPrice() >= minYear && vehicle.getPrice() <= maxYear) {
-                    yearRange.add(vehicle);
-                }
-
+    public ArrayList<Vehicle> getVehicleByYear (int minYear, int maxYear) {
+        ArrayList<Vehicle> yearRange = new ArrayList<>();
+        for (Vehicle vehicle : inventory) {
+            // sets the range to if the price is greater than the min and less than the max
+            if (minYear <=vehicle.getYear() && maxYear >=vehicle.getYear() ) {
+                yearRange.add(vehicle);
             }
-            return yearRange;
         }
-            public ArrayList<Vehicle> getVehiclebyColor (String color) {
-                ArrayList<Vehicle> colorSearch = new ArrayList<>();
-                for (Vehicle vehicle: inventory){
-                if (color.equalsIgnoreCase(vehicle.getColor())) {
-                    colorSearch.add(vehicle);
-                }
-
-            }return colorSearch;
+       return null;
     }
-        public ArrayList<Vehicle> getVehicleByMileage (int minMileage, int maxMileage){
-            ArrayList<Vehicle> mileageSearch = new ArrayList<>();
-            for (Vehicle vehicle : inventory) {
-                // sets the range to if the price is greater than the min and less than the max
-                if (vehicle.getPrice() >= minMileage && vehicle.getPrice() <= maxMileage) {
-                    mileageSearch.add(vehicle);
-                }
-
+    public ArrayList<Vehicle> getVehiclebyColor (String color) {
+        ArrayList<Vehicle> colorSearch = new ArrayList<>();
+        for (Vehicle vehicle: inventory){
+            if (color.equalsIgnoreCase(vehicle.getColor())) {
+                colorSearch.add(vehicle);
             }
-            return mileageSearch;
-        }
-        public ArrayList<Vehicle> getVehicleByType (String vehicleType){
-            ArrayList<Vehicle> typeSearch = new ArrayList<>();
-            for (Vehicle vehicle: inventory) {
-                if (vehicleType.equalsIgnoreCase(vehicle.getColor())) {
-                    typeSearch.add(vehicle);
-                }
-            }return typeSearch;
-    }
-        public ArrayList<Vehicle> getAllVehicle () {
-            return inventory;
-        }
-        public void addVehicle (Vehicle vehicle){
-            inventory.add(vehicle);
 
-        }
-        public void removeVehicle (Vehicle vehicle){
-        }
+        }return colorSearch;
     }
+    public ArrayList<Vehicle> getVehicleByMileage (int minMileage, int maxMileage){
+        ArrayList<Vehicle> mileageSearch = new ArrayList<>();
+        for (Vehicle vehicle : inventory) {
+            // sets the range to if the price is greater than the min and less than the max
+            if (vehicle.getOdometer() >= minMileage && vehicle.getOdometer() <= maxMileage) {
+                mileageSearch.add(vehicle);
+            }
+        }
+        return mileageSearch;
+    }
+    public ArrayList<Vehicle> getVehicleByType (String vehicleType){
+        ArrayList<Vehicle> typeSearch = new ArrayList<>();
+        for (Vehicle vehicle: inventory) {
+            if (vehicleType.equalsIgnoreCase(vehicle.getVehicleType())) {
+                typeSearch.add(vehicle);
+            }
+        }return typeSearch;
+    }
+    public ArrayList<Vehicle> getAllVehicle () {
+        return inventory;
+    }
+    public void addVehicle (Vehicle vehicle){
+        inventory.add(vehicle);
 
+    }
+    public void removeVehicle (Vehicle vehicle){
+        inventory.remove(vehicle);
+    }
+}

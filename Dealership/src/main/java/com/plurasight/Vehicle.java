@@ -13,7 +13,7 @@ public class Vehicle {
     //Constructor
 
 
-    public Vehicle(int vin, int year, String model, String make, String vehicleType, String color, int odometer, double price) {
+    public Vehicle(int vin, int year, String make, String model, String vehicleType, String color, int odometer, double price) {
         this.vin = vin;
         this.year = year;
         this.model = model;
@@ -90,15 +90,13 @@ public class Vehicle {
 
     @Override
     public String toString() {
-        return "Vehicle{" +
-                "vin=" + vin +
-                ", year=" + year +
-                ", model='" + model + '\'' +
-                ", make='" + make + '\'' +
-                ", vehicleType='" + vehicleType + '\'' +
-                ", color='" + color + '\'' +
-                ", odometer=" + odometer +
-                ", price=" + price +
-                '}';
+        return "Vin=" + vin +
+                ", Year=" + year +
+                ", Model=" + model +
+                ", Make=" + make +
+                ", Vehicle Type='" + vehicleType +
+                ", Color='" + color +
+                ", Odometer=" + odometer +
+                ", Price=" + price;
     }
 }
